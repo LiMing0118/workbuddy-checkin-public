@@ -721,6 +721,16 @@ def run(check_only):
             st_code, st_body = api_call(base, STATUS_PATH, token)
             result["detail"]["status_http"] = st_code
             result["detail"]["status_resp"] = _resp_for_detail(st_body)
+            # 查询必须通过 HTTP 与业务码校验，不能把 401/错误页当成查询成功。
+            status_business_code = str(st_body.get("code", "")) if isinstance(st_body, dict) else ""
+            if (not 200 <= st_code < 300
+                    or not isinstance(st_body, dict)
+                    or status_business_code not in ("0", "200", "10001")
+                    or st_body.get("success") is False):
+                result.update(status="error", action="failed",
+                              msg="状态查询未通过校验（HTTP %s，业务码 %s）" %
+                                  (st_code, status_business_code or "缺失"))
+                return result
             # 从状态响应中提前提取积分余额（领取分支会用领取响应再覆盖一次）
             result["balance"] = _extract_balance(st_body)
             result["detail"]["balance"] = result["balance"]
@@ -730,7 +740,8 @@ def run(check_only):
             if isinstance(st_body, dict):
                 if st_body.get("today_checked_in") is True:
                     today_signed = True
-                elif st_body.get("data", {}).get("today_checked_in") is True:
+                elif (isinstance(st_body.get("data"), dict)
+                      and st_body["data"].get("today_checked_in") is True):
                     today_signed = True
                 elif str(st_body.get("code")) == "10001":
                     today_signed = True
@@ -766,7 +777,8 @@ def run(check_only):
                                   msg="今日已签到（接口返回 code=10001）")
                     return result
                 # 领取成功判定：HTTP 2xx 且业务码为成功（兼容无 code / code=0 / code=200）
-                success_code = code in ("", "0", "200")
+                success_code = (code in ("0", "200")
+                                and ck_body.get("success") is not False)
                 if 200 <= ck_code < 300 and success_code:
                     credit = (ck_body.get("credit") or data.get("credit")
                               or data.get("daily_credit") or data.get("today_credit"))

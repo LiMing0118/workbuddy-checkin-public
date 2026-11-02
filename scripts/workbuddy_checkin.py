@@ -776,7 +776,7 @@ def run(check_only):
                     result.update(status="ok", action="skip_already_signed",
                                   msg="今日已签到（接口返回 code=10001）")
                     return result
-                # 领取成功判定：HTTP 2xx 且业务码为成功（兼容无 code / code=0 / code=200）
+                # 领取成功判定：HTTP 2xx 且业务码明确为 code=0 / code=200
                 success_code = (code in ("0", "200")
                                 and ck_body.get("success") is not False)
                 if 200 <= ck_code < 300 and success_code:

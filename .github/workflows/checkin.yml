@@ -12,8 +12,6 @@ name: WorkBuddy 每日自动签到
 
 on:
   schedule:
-    # TEMP_SCHEDULE_PROBE: remove after native schedule validation
-    - cron: '*/5 * * * *'
     # UTC：北京时间 09:07 主签到，10:37 / 18:37 补查。
     # 避开整点拥堵；当日已签到时脚本只查询并跳过领取。
     # GitHub schedule 可能延迟或丢弃，多个时段降低单次漏触发的影响。
@@ -91,10 +89,6 @@ jobs:
         # 手动触发且勾选「仅查询」时不执行领取
         run: |
           ARGS=""
-          # TEMP_SCHEDULE_PROBE: scheduled diagnostics never claim rewards.
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
-            ARGS="--check-only"
-          fi
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.check_only }}" = "true" ]; then
             ARGS="--check-only"
           fi

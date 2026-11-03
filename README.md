@@ -166,6 +166,8 @@ python scripts/sync_token_to_github.py --dry-run
 
 > **自动调度需要单独验收**：手动运行成功不能证明定时触发正常。请在 Actions 运行记录中确认至少一次 `event=schedule` 的运行；工作流显示 `active` 只表示已启用。GitHub 不保证按计划分钟准时启动。
 
+> **调度排障**：先核对默认分支、仓库 Actions 开关与工作流状态；需要时停用后重新启用，并由有写权限的账号提交 cron 修改。用短间隔查询验证时，应在排查结束后移除临时测试，恢复正常时段。参考 [GitHub 官方排障说明](https://docs.github.com/en/actions/how-tos/troubleshoot-workflows)。
+
 ---
 
 ## 通知配置（可选）

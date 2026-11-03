@@ -162,7 +162,9 @@ python scripts/sync_token_to_github.py --dry-run
 ### 手动验证
 
 到仓库 **Actions** 页面 → 选择「WorkBuddy 每日自动签到」→ **Run workflow**。
-首次建议勾选 `check_only`（仅查询，不领取）确认接口联通，再跑一次真实签到。看到 `status: ok` 即配置成功。
+首次建议勾选 `check_only`（仅查询，不领取）确认接口联通，再跑一次真实签到。必须核对动作和接口结果：`skip_check_only` 只表示查询通过；`clicked` 才表示本次领取成功；`skip_already_signed` 表示当日已经领取。
+
+> **自动调度需要单独验收**：手动运行成功不能证明定时触发正常。请在 Actions 运行记录中确认至少一次 `event=schedule` 的运行；工作流显示 `active` 只表示已启用。GitHub 不保证按计划分钟准时启动。
 
 ---
 
